@@ -17,15 +17,18 @@ public class TileBlock extends BlockEntityTickable {
     private String defId;
     @TagField(value = "texture", mapper = StrictTagMapper.class)
     private String texture = null;
+    @TagField
+    private float angle = 0;
 
     @Override
     public void update() {
 
     }
 
-    public TileBlock setup(String defId, String texture) {
+    public TileBlock setup(String defId, String texture, double angle) {
         this.defId = defId;
         this.texture = texture;
+        this.angle = (float) angle;
         return this;
     }
 
@@ -58,8 +61,12 @@ public class TileBlock extends BlockEntityTickable {
     @Override
     public IBoundingBox getBoundingBox() {
         BlockDefinition def = getDefinition();
-        Vec3d min = def.model.minOfGroup(def.model.groups()).add(0.5, 0, 0.5);
-        Vec3d max = def.model.maxOfGroup(def.model.groups()).add(0.5 , 0, 0.5);
-        return IBoundingBox.from(min, max);
+        Vec3d min = def.model.minOfGroup(def.model.groups());
+        Vec3d max = def.model.maxOfGroup(def.model.groups());
+        return IBoundingBox.from(new Vec3d(0, min.y, 0), new Vec3d(1, max.y, 1));
+    }
+
+    public float getAngle() {
+        return this.angle;
     }
 }

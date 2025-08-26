@@ -18,6 +18,7 @@ import poizzy.railworks.registry.DefinitionManager;
 import poizzy.railworks.registry.SignalDefinition;
 import poizzy.railworks.tile.TileBlock;
 import poizzy.railworks.tile.TileSignal;
+import poizzy.railworks.utility.VecUtil;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -75,21 +76,23 @@ public class ItemSignal extends CustomItem {
 
         Vec3i target = world.isReplaceable(pos) ? pos : pos.offset(facing);
 
-        if (!world.isAir(target) || !world.isReplaceable(target)) {
-            return ClickResult.REJECTED;
+        if (world.isAir(target) || world.isReplaceable(target)) {
+            Data data = new Data(player.getHeldItem(hand));
+            world.setBlock(target, RWBlocks.BLOCK_SIGNAL);
+
+            TileBlock te = world.getBlockEntity(target, TileBlock.class);
+
+            if (te instanceof TileSignal) {
+                float rotationSteps = 15;
+                int rotation = (int) (-(Math.round(player.getRotationYawHead() / rotationSteps) * rotationSteps) + 90);
+                te.setup(data.block.defId, data.texture, rotation);
+                te.markDirty();
+            }
+
+            return ClickResult.ACCEPTED;
         }
 
-        Data data = new Data(player.getHeldItem(hand));
-        world.setBlock(target, RWBlocks.BLOCK_SIGNAL);
-
-        TileBlock te = world.getBlockEntity(target, TileBlock.class);
-
-        if (te instanceof TileSignal) {
-            te.setup(data.block.defId, data.texture);
-            te.markDirty();
-        }
-
-        return ClickResult.ACCEPTED;
+        return ClickResult.REJECTED;
     }
 
     public static class Data extends ItemDataSerializer {

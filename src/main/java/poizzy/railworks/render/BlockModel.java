@@ -29,6 +29,7 @@ public class BlockModel<DEFINITION extends BlockDefinition, TILE extends TileBlo
                 .cull_face(false)
                 .rescale_normal(true);
         state.translate(0.5, 0, 0.5);
+        state.rotate(block.getAngle(), 0, 1, 0);
 
         Binder binder = binder().texture(block.getTexture());
         try (OBJRender.Binding bound = binder.bind(state)) {
