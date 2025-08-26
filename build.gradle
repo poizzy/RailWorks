@@ -1,0 +1,70 @@
+buildscript {
+    repositories {
+        maven { url = "https://maven.minecraftforge.net/" }
+    }
+	dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+	}
+}
+
+
+apply plugin: 'net.minecraftforge.gradle.forge'
+
+apply plugin: 'maven-publish'
+
+
+version = '1.12.2-forge-0.0.1'
+if (!"release".equalsIgnoreCase(System.getProperty("target"))) {
+    try {
+        version += "-" + 'git rev-parse --verify --short=7 HEAD'.execute().text.trim()
+    } catch (Exception ex) {
+        version += "-unknown"
+    }
+}
+group = "poizzy.railworks.railworks"
+archivesBaseName = "RailWorks"
+
+sourceCompatibility = targetCompatibility = '1.8'
+compileJava {
+    sourceCompatibility = targetCompatibility = '1.8'
+}
+
+minecraft {
+    version = "1.12.2-14.23.5.2847"
+    runDir = "run"
+    mappings = "stable_39"
+}
+
+
+repositories { maven { url = "https://teamopenindustry.cc/maven" }}
+
+dependencies {
+    compile 'cam72cam.universalmodcore:UniversalModCore:1.12.2-forge-1.2.1-ef38091'
+}
+
+
+jar.finalizedBy('reobfJar')
+
+processResources {
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft.version
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+        expand 'version':project.version, 'mcversion':project.minecraft.version
+    }
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
+}
+
+task('showBuildInfo') {
+    doLast {
+        String minecraftString = "1.12.2"
+        String minecraftLoader = "forge"
+        String umcVersionString = "1.12.2-forge-1.2.1-ef38091"
+        System.out.println("Build for MC 1.12.2 (forge)")
+        System.out.println("https://teamopenindustry.cc/maven/cam72cam/universalmodcore/UniversalModCore/${umcVersionString}/UniversalModCore-${umcVersionString}.jar")
+    }
+}
+
+build.finalizedBy showBuildInfo

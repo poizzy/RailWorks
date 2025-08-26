@@ -1,0 +1,14 @@
+{
+    "mod": {
+        "pkg": "poizzy.railworks",
+        "cls": "RailWorks",
+        "name": "RailWorks",
+        "id": "railworks",
+        "version": "0.0.1",
+        "dependencies": {}
+    },
+    "umc": {
+        "version": "latest"
+    }
+}
+
