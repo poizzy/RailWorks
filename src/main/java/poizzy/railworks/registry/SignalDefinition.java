@@ -12,4 +12,9 @@ public class SignalDefinition extends BlockDefinition{
     public SignalDefinition(String defId, JsonObject json) {
         this(TileSignal.class, defId, json);
     }
+
+    @Override
+    protected void loadData(JsonObject data) {
+        super.loadData(data);
+    }
 }

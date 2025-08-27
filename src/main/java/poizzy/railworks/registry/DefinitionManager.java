@@ -1,6 +1,7 @@
 package poizzy.railworks.registry;
 
 import cam72cam.mod.resource.Identifier;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -51,19 +52,23 @@ public class DefinitionManager {
                 } catch (IllegalArgumentException e) {
                     throw new RuntimeException(e);
                 }
-                String defName = defTypes.getValue().getAsString();
+                JsonArray defNames = defTypes.getValue().getAsJsonArray();
 
-                String defPath = String.format("blocks/%s/%s.json", type, defName);
+                for (int i = 0; i < defNames.size(); i++) {
+                    String defName = defNames.get(i).getAsString();
+                    String defPath = String.format("blocks/%s/%s.json", type, defName);
 
-                if (blocks.containsKey(defPath)) {
-                    continue;
-                }
+                    if (blocks.containsKey(defPath)) {
+                        continue;
+                    }
 
-                Identifier defIdent = new Identifier(RailWorks.MODID, defPath);
+                    Identifier defIdent = new Identifier(RailWorks.MODID, defPath);
 
-                try (InputStream stream = defIdent.getResourceStream()) {
-                    JsonObject blockDefinition = new JsonParser().parse(new InputStreamReader(stream)).getAsJsonObject();;
-                    blocks.put(defPath, loaders.load(defPath, blockDefinition));
+                    try (InputStream stream = defIdent.getResourceStream()) {
+                        JsonObject blockDefinition = new JsonParser().parse(new InputStreamReader(stream)).getAsJsonObject();
+                        ;
+                        blocks.put(defPath, loaders.load(defPath, blockDefinition));
+                    }
                 }
             }
         }

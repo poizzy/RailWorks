@@ -1,7 +1,6 @@
 package poizzy.railworks.items;
 
 import cam72cam.mod.entity.Player;
-import cam72cam.mod.event.CommonEvents;
 import cam72cam.mod.item.ClickResult;
 import cam72cam.mod.item.CreativeTab;
 import cam72cam.mod.item.CustomItem;
@@ -18,12 +17,8 @@ import poizzy.railworks.registry.DefinitionManager;
 import poizzy.railworks.registry.SignalDefinition;
 import poizzy.railworks.tile.TileBlock;
 import poizzy.railworks.tile.TileSignal;
-import poizzy.railworks.utility.VecUtil;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.function.Consumer;
 
 public class ItemSignal extends CustomItem {
     public ItemSignal() {

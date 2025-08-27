@@ -5,10 +5,14 @@ import cam72cam.mod.resource.Identifier;
 import cam72cam.mod.serialization.SerializationException;
 import cam72cam.mod.serialization.TagField;
 import cam72cam.mod.serialization.TagMapped;
-import cam72cam.mod.serialization.TagMapper;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import poizzy.railworks.render.BlockModel;
 import poizzy.railworks.tile.TileBlock;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Optional;
 
 @TagMapped(BlockDefinition.TagMapper.class)
 public class BlockDefinition {
@@ -18,6 +22,24 @@ public class BlockDefinition {
     public String defId;
     public Identifier modelLoc;
     public BlockModel<?, ?> model;
+
+    public Map<String, States> signalStates;
+
+    public static class States {
+        public String texture;
+        public Identifier animation;
+        public String stateName;
+
+        public States(JsonObject obj, String stateName) {
+            Optional.ofNullable(obj.get("texture")).ifPresent(o -> this.texture = o.getAsString());
+            Optional.ofNullable(obj.get("animation")).ifPresent(o -> this.animation = new Identifier(o.getAsString()));
+            this.stateName = stateName;
+        }
+
+        public States(String texture) {
+            this.texture = texture;
+        }
+    }
 
     public BlockDefinition(Class<? extends TileBlock> type, String defId, JsonObject json) {
         this.type = type;
@@ -33,9 +55,22 @@ public class BlockDefinition {
         }
     }
 
-    private void loadData(JsonObject data) {
+    protected void loadData(JsonObject data) {
         this.name = data.get("name").getAsString();
         this.modelLoc = new Identifier(data.get("model").getAsString());
+
+        signalStates = new LinkedHashMap<>();
+        signalStates.put("DEFAULT", new States(""));
+
+        JsonElement states = data.get("states");
+
+        if (states.isJsonObject()) {
+            for (Map.Entry<String, JsonElement> elements : states.getAsJsonObject().entrySet()) {
+                String state = elements.getKey();
+                States options = new States(elements.getValue().getAsJsonObject(), state);
+                signalStates.put(state, options);
+            }
+        }
     }
 
     static class TagMapper implements cam72cam.mod.serialization.TagMapper<BlockDefinition> {

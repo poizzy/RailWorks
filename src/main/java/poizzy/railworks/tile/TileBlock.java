@@ -19,10 +19,14 @@ public class TileBlock extends BlockEntityTickable {
     private String texture = null;
     @TagField
     private float angle = 0;
+    @TagField
+    private String state;
+    @TagField
+    public int ticksExisted = 0;
 
     @Override
     public void update() {
-
+        ticksExisted += 1;
     }
 
     public TileBlock setup(String defId, String texture, double angle) {
@@ -48,6 +52,19 @@ public class TileBlock extends BlockEntityTickable {
 
     public String getTexture() {
         return this.texture;
+    }
+
+    public void setTexture(String texture) {
+        this.texture = texture;
+    }
+
+    public void setState(String stateName) {
+        this.state = stateName;
+        this.texture = getDefinition().signalStates.get(stateName).texture;
+    }
+
+    public String getState () {
+        return state;
     }
 
     @Override
