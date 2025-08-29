@@ -64,7 +64,7 @@ public class BlockDefinition {
 
         JsonElement states = data.get("states");
 
-        if (states.isJsonObject()) {
+        if (states != null && states.isJsonObject()) {
             for (Map.Entry<String, JsonElement> elements : states.getAsJsonObject().entrySet()) {
                 String state = elements.getKey();
                 States options = new States(elements.getValue().getAsJsonObject(), state);

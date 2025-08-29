@@ -2,6 +2,8 @@ package poizzy.railworks.tile;
 
 import cam72cam.mod.block.BlockEntityTickable;
 import cam72cam.mod.entity.boundingbox.IBoundingBox;
+import cam72cam.mod.item.CustomItem;
+import cam72cam.mod.item.Fuzzy;
 import cam72cam.mod.item.ItemStack;
 import cam72cam.mod.math.Vec3d;
 import cam72cam.mod.serialization.StrictTagMapper;
@@ -38,12 +40,8 @@ public class TileBlock extends BlockEntityTickable {
 
     @Override
     public ItemStack onPick() {
-        ItemStack stack = new ItemStack(RWItems.ITEM_SIGNAL, 1);
-        ItemSignal.Data data = new ItemSignal.Data(stack);
-        data.block = getDefinition();
-        data.texture = texture;
-        data.write();
-        return stack;
+        // shouldn't be hit
+        return Fuzzy.NAME_TAG.example();
     }
 
     public BlockDefinition getDefinition() {

@@ -1,2 +1,8 @@
 rootProject.name = 'RailWorks'
 
+includeBuild("E:/Janis/IntelliJ Projects/UniversalModCore") {
+    dependencySubstitution {
+        substitute module("cam72cam.universalmodcore:UniversalModCore:1.12.2-forge-1.2.1-ef38091") with project(":")
+    }
+}
+

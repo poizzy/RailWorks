@@ -18,7 +18,8 @@ import java.util.function.Function;
 
 public class DefinitionManager {
     private enum BlockLoaders {
-        SIGNAL(SignalDefinition::new);
+        SIGNAL(SignalDefinition::new),
+        CONTROLLER(ControllerDefinition::new);
 
         final BiFunction<String, JsonObject, BlockDefinition> definitions;
         BlockLoaders(BiFunction<String, JsonObject, BlockDefinition> provider) {

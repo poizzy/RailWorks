@@ -12,7 +12,7 @@ import poizzy.railworks.items.ItemSignal;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ItemSignalRender implements ItemRender.IItemModel {
+public class DefaultItemRenderer implements ItemRender.IItemModel {
     public Map<String, OBJModel> cache = new HashMap<>();
 
     @Override

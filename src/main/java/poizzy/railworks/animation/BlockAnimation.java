@@ -3,7 +3,7 @@ package poizzy.railworks.animation;
 import cam72cam.mod.math.Vec3i;
 import poizzy.railworks.registry.BlockDefinition;
 import poizzy.railworks.tile.TileBlock;
-import poizzy.railworks.utility.ExpireableMap;
+import poizzy.railworks.library.ExpireableMap;
 import util.Matrix4;
 
 import java.io.IOException;

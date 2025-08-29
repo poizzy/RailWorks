@@ -36,7 +36,12 @@ minecraft {
 }
 
 
-repositories { maven { url = "https://teamopenindustry.cc/maven" }}
+repositories {
+    maven { url = "https://teamopenindustry.cc/maven" }
+    maven {
+        url "https://cursemaven.com"
+    }
+}
 
 dependencies {
     compile 'cam72cam.universalmodcore:UniversalModCore:1.12.2-forge-1.2.1-ef38091'
