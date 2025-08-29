@@ -81,8 +81,9 @@ public class ControllerGui implements IScreen {
         }
 
 
-        state.translate((double) builder.getWidth() / 2, (double) builder.getHeight() / 2, 400);
-        state.scale(0.1, 0.1, 0.1);
+        state.translate(((double) builder.getWidth() / 2) + 90d, ((double) builder.getHeight() / 2) + 60d, 400);
+        state.scale(-16, -16, -16);
+        state.lightmap(1, 1);
         model.renderBlock(signal, state, 0);
     }
 }
