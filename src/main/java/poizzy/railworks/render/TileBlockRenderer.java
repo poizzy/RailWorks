@@ -20,4 +20,8 @@ public class TileBlockRenderer {
         });
         return new StandardModel().addCustom((state, partialTicks) -> renderer.renderBlock(te, state, partialTicks));
     }
+
+    public static void removeRenderer(Vec3i pos) {
+        renderers.remove(pos);
+    }
 }

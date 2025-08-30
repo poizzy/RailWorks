@@ -13,6 +13,7 @@ import poizzy.railworks.RWItems;
 import poizzy.railworks.items.ItemSignal;
 import poizzy.railworks.registry.BlockDefinition;
 import poizzy.railworks.registry.DefinitionManager;
+import poizzy.railworks.render.TileBlockRenderer;
 
 public class TileBlock extends BlockEntityTickable {
     @TagField
@@ -42,6 +43,12 @@ public class TileBlock extends BlockEntityTickable {
     public ItemStack onPick() {
         // shouldn't be hit
         return Fuzzy.NAME_TAG.example();
+    }
+
+    @Override
+    public void onBreak() {
+        super.onBreak();
+        TileBlockRenderer.removeRenderer(getPos());
     }
 
     public BlockDefinition getDefinition() {
