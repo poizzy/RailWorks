@@ -3,6 +3,7 @@ package poizzy.railworks.render;
 import cam72cam.mod.model.obj.OBJModel;
 import cam72cam.mod.render.obj.OBJRender;
 import cam72cam.mod.render.opengl.RenderState;
+import org.apache.commons.lang3.tuple.Pair;
 import poizzy.railworks.animation.BlockAnimation;
 import poizzy.railworks.registry.BlockDefinition;
 import poizzy.railworks.tile.TileBlock;
@@ -46,20 +47,45 @@ public class BlockModel<DEFINITION extends BlockDefinition, TILE extends TileBlo
         return false;
     }
 
-    private static final Pattern statePattern = Pattern.compile("STATE_([^_]+)");
+    private static final Pattern STATE_INFO = Pattern.compile("(FULLBRIGHT|HIDE)_([^_]+)");
 
-    public boolean isStateDependent(String group) {
-        return hasFlag(group, "STATE");
+    public Pair<Boolean, Boolean> isHiddenOrLit(String group, TileBlock block) {
+        if (group == null || block == null) return Pair.of(false, false);
+
+        final String blockState = String.valueOf(block.getState());
+        boolean hidden = false;
+        boolean fullbright = false;
+
+        Matcher matcher = STATE_INFO.matcher(group);
+        while (matcher.find()) {
+            String kind = matcher.group(1);
+
+            String spec = matcher.group(2).replace('^', ' ');
+
+            boolean matches = matchesAny(spec, blockState);
+
+            if ("HIDE".equals(kind)) {
+                hidden = matches;
+            } else {
+                fullbright = matches;
+            }
+        }
+
+        return Pair.of(hidden, fullbright);
     }
 
-    public boolean isLit(String group, TileBlock block) {
-        Matcher matcher = statePattern.matcher(group);
-        if (matcher.find()) {
-            String lightState = matcher.group(1).replace("^", " ");
-            return lightState.equals(block.getState()) && hasFlag(group, "FULLBRIGHT");
+    private static boolean matchesAny(String spec, String state) {
+        // tokens like "foo", "~bar", "baz"
+        for (String token : spec.split("\\|")) {
+            boolean invert = !token.isEmpty() && token.charAt(0) == '~';
+            String value = invert ? token.substring(1) : token;
+            boolean eq = value.equals(state);
+            if (invert != eq) return true;
         }
         return false;
     }
+
+    public final List<String> singletonList = new ArrayList<>(1);
 
     public void renderBlock(TileBlock block, RenderState state, float partialTicks) {
         state.lighting(true)
@@ -70,34 +96,33 @@ public class BlockModel<DEFINITION extends BlockDefinition, TILE extends TileBlo
 
         Binder binder = binder().texture(block.getTexture());
         try (OBJRender.Binding bound = binder.bind(state)) {
-            Map<String, Matrix4> animatedGroups = new HashMap<>();
-            for (String s : groups()) {
+            for (String group : groups()) {
+                Pair<Boolean, Boolean> hiddenOrLit = isHiddenOrLit(group, block);
+                if (hiddenOrLit.getLeft()) continue;
+
+                boolean lit = hiddenOrLit.getRight();
+
+                singletonList.add(group);
+
+                Matrix4 matrix = null;
                 for (BlockAnimation animation : animations) {
                     Matrix4 anim;
-                    if ((anim = animation.getMatrix(block, s, partialTicks)) != null) {
-                        animatedGroups.put(s, anim);
+                    if ((anim = animation.getMatrix(block, group, partialTicks)) != null) {
+                        matrix = anim;
+                        break;
                     }
                 }
+
+                Matrix4 finalMatrix = matrix;
+                bound.draw(singletonList, s -> {
+                    s.lightmap(lit ? 1 : 0, 1);
+                    if (finalMatrix != null) {
+                        s.model_view().multiply(finalMatrix);
+                    }
+                });
+
+                singletonList.clear();
             }
-
-            List<String> notAnimated = groups().stream().filter(s -> !animatedGroups.containsKey(s)).collect(Collectors.toList());
-
-            // Draw animated
-            for (Map.Entry<String, Matrix4> anim : animatedGroups.entrySet()) {
-                String obj = anim.getKey();
-                if (isStateDependent(obj) && isLit(obj, block)) {
-                    bound.draw(Collections.singletonList(obj), s -> s.lightmap(1, 1).model_view().multiply(anim.getValue()));
-                } else {
-                    bound.draw(Collections.singletonList(obj), s -> s.model_view().multiply(anim.getValue()));
-                }
-            }
-
-            // Draw static
-
-            Map<Boolean, List<String>> isLit = notAnimated.stream().collect(Collectors.partitioningBy(s -> isStateDependent(s) && isLit(s, block)));
-
-            bound.draw(isLit.get(true), s -> s.lightmap(1, 1));
-            bound.draw(isLit.get(false));
         }
     }
 }
