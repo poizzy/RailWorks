@@ -6,16 +6,13 @@ import cam72cam.mod.gui.screen.IScreenBuilder;
 import cam72cam.mod.render.opengl.RenderState;
 import cam72cam.mod.resource.Identifier;
 import poizzy.railworks.RailWorks;
-import poizzy.railworks.gui.components.CustomButton;
 import poizzy.railworks.gui.components.ListSelector;
-import poizzy.railworks.library.CircularList;
 import poizzy.railworks.library.ControllerPacket;
 import poizzy.railworks.render.BlockModel;
 import poizzy.railworks.tile.TileController;
 import poizzy.railworks.tile.TileSignal;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class ControllerGui implements IScreen {
     private static final Identifier GUI_TEXTURE = new Identifier(RailWorks.MODID, "textures/gui/controller.png");
@@ -84,6 +81,7 @@ public class ControllerGui implements IScreen {
         state.translate(((double) builder.getWidth() / 2) + 90d, ((double) builder.getHeight() / 2) + 60d, 400);
         state.scale(-16, -16, -16);
         state.lightmap(1, 1);
+        state.rotate(90 - signal.getAngle(), 0, 1, 0);
         model.renderBlock(signal, state, 0);
     }
 }
