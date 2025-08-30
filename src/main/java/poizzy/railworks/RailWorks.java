@@ -86,6 +86,11 @@ public class RailWorks extends ModCore.Mod {
             case START:
                 break;
             case RELOAD:
+                try {
+                    DefinitionManager.initDefinitions();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
                 break;
         }
     }
