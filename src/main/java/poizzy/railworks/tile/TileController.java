@@ -4,13 +4,13 @@ import cam72cam.mod.entity.Player;
 import cam72cam.mod.entity.boundingbox.IBoundingBox;
 import cam72cam.mod.item.ItemStack;
 import cam72cam.mod.math.Vec3d;
+import cam72cam.mod.math.Vec3i;
 import cam72cam.mod.serialization.SerializationException;
 import cam72cam.mod.serialization.TagCompound;
 import cam72cam.mod.serialization.TagField;
 import cam72cam.mod.serialization.TagMapper;
 import cam72cam.mod.text.PlayerMessage;
 import cam72cam.mod.util.Facing;
-import cam72cam.mod.world.World;
 import poizzy.railworks.RWItems;
 import poizzy.railworks.items.ItemController;
 import poizzy.railworks.library.GuiTypes;
@@ -20,31 +20,24 @@ import java.util.Map;
 
 public class TileController extends TileBlock {
     @TagField
-    private TileSignal connectedSignal = null;
+    private Vec3i signalPos = null;
     @TagField(mapper = StateTagMapper.class)
     private Map<Integer, String> redstoneStateMap = new HashMap<>();
     @TagField
     private String currentSignalState = "DEFAULT";
-    @TagField
-    private World world;
 
     @Override
     public void update() {
         super.update();
 
-        if (world == null) {
-            world = getWorld();
-        }
-
-        if (connectedSignal == null) {
-            return;
-        }
-
-        String newState = redstoneStateMap.getOrDefault(getWorld().getRedstone(getPos()), "DEFAULT");
-        if (!newState.equals(currentSignalState)) {
-            connectedSignal.setState(newState);
-            currentSignalState = newState;
-            connectedSignal.markDirty();
+        TileSignal signal;
+        if (signalPos != null && (signal = getWorld().getBlockEntity(signalPos, TileSignal.class)) != null) {
+            String newState = redstoneStateMap.getOrDefault(getWorld().getRedstone(getPos()), "DEFAULT");
+            if (!newState.equals(currentSignalState)) {
+                signal.setState(newState);
+                currentSignalState = newState;
+                signal.markDirty();
+            }
         }
     }
 
@@ -58,6 +51,17 @@ public class TileController extends TileBlock {
         return stack;
     }
 
+    @Override
+    public void onBreak() {
+        super.onBreak();
+
+        TileSignal signal;
+        if (signalPos != null && (signal = getWorld().getBlockEntity(signalPos, TileSignal.class)) != null) {
+            signal.removeController();
+        }
+        signalPos = null;
+    }
+
     public Map<Integer, String> getRedstoneStateMap() {
         return this.redstoneStateMap;
     }
@@ -68,11 +72,13 @@ public class TileController extends TileBlock {
 
     @Override
     public boolean onClick(Player player, Player.Hand hand, Facing facing, Vec3d hit) {
+        if (getWorld().isServer) return false;
+
         if (player.getHeldItem(hand).is(RWItems.ITEM_CONTROLLER)) {
             return false;
         }
 
-        if (connectedSignal != null) {
+        if (signalPos != null && getWorld().getBlockEntity(signalPos, TileSignal.class) != null) {
             GuiTypes.CONTROLLER.open(player, getPos());
         } else {
             player.sendMessage(PlayerMessage.direct("No signal connected! Connect signal first!"));
@@ -81,25 +87,22 @@ public class TileController extends TileBlock {
         return true;
     }
 
-    public boolean hasSignalState(String state) {
-        return connectedSignal != null && connectedSignal.getDefinition().signalStates.containsKey(state);
-    }
-
     @Override
     public IBoundingBox getBoundingBox() {
         return IBoundingBox.BLOCK;
     }
 
     public void connectSignal(TileSignal signal) {
-        this.connectedSignal = signal;
+        signal.setController(getPos());
+        this.signalPos = signal.getPos();
     }
 
     public void removeSignal() {
-        this.connectedSignal = null;
+        this.signalPos = null;
     }
 
     public TileSignal getConnectedSignal() {
-        return this.connectedSignal;
+        return signalPos != null ? getWorld().getBlockEntity(signalPos, TileSignal.class) : null;
     }
 
     public static class StateTagMapper implements TagMapper<Map<Integer, String>> {
