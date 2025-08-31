@@ -1,5 +1,6 @@
 package poizzy.railworks.items;
 
+import cam72cam.mod.block.BlockType;
 import cam72cam.mod.entity.Player;
 import cam72cam.mod.item.ClickResult;
 import cam72cam.mod.item.CreativeTab;
@@ -48,7 +49,16 @@ public class ItemConnector extends CustomItem {
     public ClickResult onClickBlock(Player player, World world, Vec3i pos, Player.Hand hand, Facing facing, Vec3d inBlockPos) {
         TileBlock clicked = world.getBlockEntity(pos, TileBlock.class);
         if (clicked == null) {
-            return ClickResult.REJECTED;
+            BlockType block = world.getBlock(pos).getBlock();
+            if (!block.id.getPath().equals("collision")) {
+                return ClickResult.REJECTED;
+            }
+            for (int i = pos.y; i >= 0; i--) {
+                clicked = world.getBlockEntity(new Vec3i(pos.x, i, pos.z), TileBlock.class);
+                if (clicked != null) break;
+            }
+
+            if (clicked == null) return ClickResult.REJECTED;
         }
 
         ItemStack stack = player.getHeldItem(hand);

@@ -69,7 +69,7 @@ public class RailWorks extends ModCore.Mod {
                 BlockRender.register(RWBlocks.BLOCK_SIGNAL, TileBlockRenderer::render, TileSignal.class);
                 BlockRender.register(RWBlocks.BLOCK_CONTROLLER, TileBlockRenderer::render, TileController.class);
 
-                ItemRender.register(RWItems.ITEM_CONTROLLER, ObjItemRender.getModelFor(new Identifier(RailWorks.MODID, "models/empty/empty_cube.obj"), new Vec3d(0.5, 0.5, 0.5), 0.5f));
+                ItemRender.register(RWItems.ITEM_CONTROLLER, ObjItemRender.getModelFor(new Identifier(RailWorks.MODID, "models/empty/empty_cube.obj"), new Vec3d(0.5, 0.5, 0.5), new Vec3d(45, 45, 0), 0.5f));
                 ItemRender.register(RWItems.ITEM_CONNECTOR, ObjItemRender.getModelFor(new Identifier(RailWorks.MODID, "models/empty/empty_plane.obj"), new Vec3d(0.5, 0.5, 0.5), 0.5f));
                 ItemRender.register(RWItems.ITEM_SIGNAL, new DefaultItemRenderer());
                 break;

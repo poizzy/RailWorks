@@ -6,14 +6,19 @@ import cam72cam.mod.item.CustomItem;
 import cam72cam.mod.item.Fuzzy;
 import cam72cam.mod.item.ItemStack;
 import cam72cam.mod.math.Vec3d;
+import cam72cam.mod.math.Vec3i;
 import cam72cam.mod.serialization.StrictTagMapper;
 import cam72cam.mod.serialization.TagCompound;
 import cam72cam.mod.serialization.TagField;
+import poizzy.railworks.RWBlocks;
 import poizzy.railworks.RWItems;
+import poizzy.railworks.RailWorks;
 import poizzy.railworks.items.ItemSignal;
 import poizzy.railworks.registry.BlockDefinition;
 import poizzy.railworks.registry.DefinitionManager;
 import poizzy.railworks.render.TileBlockRenderer;
+
+import java.util.Map;
 
 public class TileBlock extends BlockEntityTickable {
     @TagField
@@ -26,6 +31,10 @@ public class TileBlock extends BlockEntityTickable {
     private String state;
     @TagField
     public int ticksExisted = 0;
+    @TagField
+    public int start;
+    @TagField
+    public int end;
 
     @Override
     public void update() {
@@ -36,6 +45,9 @@ public class TileBlock extends BlockEntityTickable {
         this.defId = defId;
         this.texture = texture;
         this.angle = (float) angle;
+
+        placeGhostBlocks();
+
         return this;
     }
 
@@ -49,6 +61,24 @@ public class TileBlock extends BlockEntityTickable {
     public void onBreak() {
         super.onBreak();
         TileBlockRenderer.removeRenderer(getPos());
+
+        Vec3i pos = getPos();
+        for (long i = start; i <= end; i++) {;
+            getWorld().breakBlock(new Vec3i(pos.x, pos.y + i, pos.z));
+        }
+    }
+
+    public void placeGhostBlocks() {
+        BlockDefinition def = getDefinition();
+        Vec3d max = def.model.maxOfGroup(def.model.groups());
+        Vec3d min = def.model.minOfGroup(def.model.groups());
+        start = (int) min.y;
+        end = (int) max.y;
+        Vec3i pos = getPos();
+        for (int i = start; i <= end; i++) {
+            if (i == 0) continue;
+            getWorld().setBlock(new Vec3i(pos.x, pos.y + i, pos.z), RWBlocks.COLLISION_BLOCK);
+        }
     }
 
     public BlockDefinition getDefinition() {
