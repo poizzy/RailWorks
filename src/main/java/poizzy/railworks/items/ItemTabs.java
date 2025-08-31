@@ -10,7 +10,7 @@ public class ItemTabs {
     public static CreativeTab CONTROLLER_TAB;
 
     static {
-        SIGNAL_TAB = new CreativeTab(RailWorks.MODID + ".signals", Fuzzy.BUCKET::example);
+        SIGNAL_TAB = new CreativeTab(RailWorks.MODID + ".signals", Fuzzy.BUCKET::example, true);
         CONTROLLER_TAB = new CreativeTab(RailWorks.MODID + ".controller", Fuzzy.BOOK::example);
     }
 

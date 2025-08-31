@@ -39,10 +39,10 @@ public class ItemConnector extends CustomItem {
 
     @Override
     public List<ItemStack> getItemVariants(CreativeTab creativeTab) {
-        if (!Objects.equals(creativeTab, ItemTabs.CONTROLLER_TAB)) {
-            return Collections.emptyList();
+        if (creativeTab == null || creativeTab.equals(ItemTabs.CONTROLLER_TAB)) {
+            return Collections.singletonList(new ItemStack(this, 1));
         }
-        return Collections.singletonList(new ItemStack(this, 1));
+        return Collections.emptyList();
     }
 
     @Override

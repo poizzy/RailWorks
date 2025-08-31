@@ -49,22 +49,21 @@ public class ItemController extends CustomItem {
 
     @Override
     public List<ItemStack> getItemVariants(CreativeTab creativeTab) {
-        if (!Objects.equals(creativeTab, ItemTabs.CONTROLLER_TAB)) {
-            return Collections.emptyList();
-        }
-
-        List<ItemStack> items = new ArrayList<>();
-        for (BlockDefinition def : DefinitionManager.getDefinitions()) {
-            if (!(def instanceof ControllerDefinition)) {
-                continue;
+        if (creativeTab == null || creativeTab.equals(ItemTabs.CONTROLLER_TAB)) {
+            List<ItemStack> items = new ArrayList<>();
+            for (BlockDefinition def : DefinitionManager.getDefinitions()) {
+                if (!(def instanceof ControllerDefinition)) {
+                    continue;
+                }
+                ItemStack stack = new ItemStack(this,1);
+                Data data = new Data(stack);
+                data.block = def;
+                data.write();
+                items.add(stack);
             }
-            ItemStack stack = new ItemStack(this,1);
-            Data data = new Data(stack);
-            data.block = def;
-            data.write();
-            items.add(stack);
+            return items;
         }
-        return items;
+        return Collections.emptyList();
     }
 
     @Override

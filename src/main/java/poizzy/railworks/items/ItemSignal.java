@@ -45,22 +45,21 @@ public class ItemSignal extends CustomItem {
 
     @Override
     public List<ItemStack> getItemVariants(CreativeTab creativeTab) {
-        if (!Objects.equals(creativeTab, ItemTabs.SIGNAL_TAB)) {
-            return Collections.emptyList();
-        }
-
-        List<ItemStack> items = new ArrayList<>();
-        for (BlockDefinition def : DefinitionManager.getDefinitions()) {
-            if (!(def instanceof SignalDefinition)) {
-                continue;
+        if (creativeTab == null || creativeTab.equals(ItemTabs.SIGNAL_TAB)) {
+            List<ItemStack> items = new ArrayList<>();
+            for (BlockDefinition def : DefinitionManager.getDefinitions()) {
+                if (!(def instanceof SignalDefinition)) {
+                    continue;
+                }
+                ItemStack stack = new ItemStack(this, 1);
+                Data data = new Data(stack);
+                data.block = def;
+                data.write();
+                items.add(stack);
             }
-            ItemStack stack = new ItemStack(this, 1);
-            Data data = new Data(stack);
-            data.block = def;
-            data.write();
-            items.add(stack);
+            return items;
         }
-        return items;
+        return Collections.emptyList();
     }
 
     @Override
