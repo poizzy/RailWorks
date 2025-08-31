@@ -10,9 +10,7 @@ import com.google.gson.JsonObject;
 import poizzy.railworks.render.BlockModel;
 import poizzy.railworks.tile.TileBlock;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @TagMapped(BlockDefinition.TagMapper.class)
 public class BlockDefinition {
@@ -29,15 +27,20 @@ public class BlockDefinition {
         public String texture;
         public Identifier animation;
         public String stateName;
+        public List<String> controlGroups;
 
         public States(JsonObject obj, String stateName) {
             Optional.ofNullable(obj.get("texture")).ifPresent(o -> this.texture = o.getAsString());
             Optional.ofNullable(obj.get("animation")).ifPresent(o -> this.animation = new Identifier(o.getAsString()));
+
+            controlGroups = new ArrayList<>();
+            Optional.ofNullable(obj.get("controlGroups")).ifPresent(o -> o.getAsJsonArray().forEach(a -> controlGroups.add(a.getAsString())));
             this.stateName = stateName;
         }
 
         public States(String texture) {
             this.texture = texture;
+            controlGroups = new ArrayList<>();
         }
     }
 

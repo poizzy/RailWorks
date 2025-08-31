@@ -52,7 +52,9 @@ public class BlockModel<DEFINITION extends BlockDefinition, TILE extends TileBlo
     public Pair<Boolean, Boolean> isHiddenOrLit(String group, TileBlock block) {
         if (group == null || block == null) return Pair.of(false, false);
 
-        final String blockState = String.valueOf(block.getState());
+        final String stateName = block.getState();
+        if (stateName == null) return Pair.of(false, false);
+        final BlockDefinition.States blockState = block.getDefinition().signalStates.get(stateName);
         boolean hidden = false;
         boolean fullbright = false;
 
@@ -74,12 +76,13 @@ public class BlockModel<DEFINITION extends BlockDefinition, TILE extends TileBlo
         return Pair.of(hidden, fullbright);
     }
 
-    private static boolean matchesAny(String spec, String state) {
-        // tokens like "foo", "~bar", "baz"
+    private static boolean matchesAny(String spec, BlockDefinition.States state) {
+        if (state.controlGroups.isEmpty()) return spec.contains("*");
         for (String token : spec.split("\\|")) {
+            if (token.equals("*")) return true;
             boolean invert = !token.isEmpty() && token.charAt(0) == '~';
             String value = invert ? token.substring(1) : token;
-            boolean eq = value.equals(state);
+            boolean eq = state.controlGroups.contains(value);
             if (invert != eq) return true;
         }
         return false;
