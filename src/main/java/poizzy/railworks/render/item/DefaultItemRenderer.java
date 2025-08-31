@@ -38,7 +38,16 @@ public class DefaultItemRenderer implements ItemRender.IItemModel {
 
     @Override
     public void applyTransform(ItemStack stack, ItemRender.ItemRenderType type, RenderState ctx) {
-        ctx.scale(0.1, 0.1, 0.1);
+        ctx.scale(0.15, 0.15, 0.15);
+        ctx.translate(3, 0.5, 3.8);
         ctx.rotate(-90, 0, 1, 0);
+        switch (type) {
+            case FIRST_PERSON_LEFT_HAND:
+            case THIRD_PERSON_LEFT_HAND:
+            case FIRST_PERSON_RIGHT_HAND:
+            case THIRD_PERSON_RIGHT_HAND:
+                ctx.translate(0, 3, 0);
+                break;
+        }
     }
 }
