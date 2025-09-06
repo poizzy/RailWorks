@@ -2,6 +2,7 @@ package poizzy.railworks.tile;
 
 import cam72cam.mod.entity.Player;
 import cam72cam.mod.entity.boundingbox.IBoundingBox;
+import cam72cam.mod.entity.sync.TagSync;
 import cam72cam.mod.item.ItemStack;
 import cam72cam.mod.math.Vec3d;
 import cam72cam.mod.math.Vec3i;
@@ -19,16 +20,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class TileController extends TileBlock {
+    @TagSync
     @TagField
     private Vec3i signalPos = null;
+    @TagSync
     @TagField(mapper = StateTagMapper.class)
     private Map<Integer, String> redstoneStateMap = new HashMap<>();
+    @TagSync
     @TagField
     private String currentSignalState = "DEFAULT";
 
     @Override
-    public void update() {
-        super.update();
+    public void onNeighborChange(Vec3i neighbor) {
+        super.onNeighborChange(neighbor);
 
         TileSignal signal;
         if (signalPos != null && (signal = getWorld().getBlockEntity(signalPos, TileSignal.class)) != null) {
@@ -72,9 +76,10 @@ public class TileController extends TileBlock {
 
     @Override
     public boolean onClick(Player player, Player.Hand hand, Facing facing, Vec3d hit) {
-        if (getWorld().isServer) return false;
+        if (player.getWorld().isServer) return false;
+        if (hand.equals(Player.Hand.SECONDARY)) return false;
 
-        if (player.getHeldItem(hand).is(RWItems.ITEM_CONTROLLER)) {
+        if (player.getHeldItem(Player.Hand.SECONDARY).is(RWItems.ITEM_CONTROLLER)) {
             return false;
         }
 

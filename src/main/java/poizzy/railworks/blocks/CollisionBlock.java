@@ -12,6 +12,7 @@ import cam72cam.mod.world.World;
 import poizzy.railworks.RailWorks;
 import poizzy.railworks.render.BlockModel;
 import poizzy.railworks.tile.TileBlock;
+import poizzy.railworks.tile.TileController;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -45,6 +46,8 @@ public class CollisionBlock extends BlockType {
 
     @Override
     public void onBreak(World world, Vec3i pos) {
+        if (world.isClient) return;
+
         TileBlock parent = getParent(world, pos);
 
         if (parent != null) {
@@ -60,6 +63,11 @@ public class CollisionBlock extends BlockType {
 
     @Override
     public boolean onClick(World world, Vec3i pos, Player player, Player.Hand hand, Facing facing, Vec3d hit) {
+        TileBlock parent = getParent(world, pos);
+        if (parent != null && parent instanceof TileController) {
+            TileController controller = (TileController) parent;
+            return controller.onClick(player, hand, facing, hit);
+        }
         return false;
     }
 

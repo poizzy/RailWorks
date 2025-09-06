@@ -1,5 +1,6 @@
 package poizzy.railworks.tile;
 
+import cam72cam.mod.entity.sync.TagSync;
 import cam72cam.mod.item.ItemStack;
 import cam72cam.mod.math.Vec3i;
 import cam72cam.mod.serialization.TagField;
@@ -8,6 +9,7 @@ import poizzy.railworks.items.ItemSignal;
 import poizzy.railworks.registry.SignalDefinition;
 
 public class TileSignal extends TileBlock {
+    @TagSync
     @TagField
     private Vec3i controller;
 

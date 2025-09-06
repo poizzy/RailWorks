@@ -2,14 +2,13 @@ package poizzy.railworks.tile;
 
 import cam72cam.mod.block.BlockEntityTickable;
 import cam72cam.mod.entity.boundingbox.IBoundingBox;
+import cam72cam.mod.entity.sync.TagSync;
 import cam72cam.mod.item.CustomItem;
 import cam72cam.mod.item.Fuzzy;
 import cam72cam.mod.item.ItemStack;
 import cam72cam.mod.math.Vec3d;
 import cam72cam.mod.math.Vec3i;
-import cam72cam.mod.serialization.StrictTagMapper;
-import cam72cam.mod.serialization.TagCompound;
-import cam72cam.mod.serialization.TagField;
+import cam72cam.mod.serialization.*;
 import poizzy.railworks.RWBlocks;
 import poizzy.railworks.RWItems;
 import poizzy.railworks.RailWorks;
@@ -21,14 +20,19 @@ import poizzy.railworks.render.TileBlockRenderer;
 import java.util.Map;
 
 public class TileBlock extends BlockEntityTickable {
+    @TagSync
     @TagField
     private String defId;
+    @TagSync
     @TagField(value = "texture", mapper = StrictTagMapper.class)
     private String texture = null;
+    @TagSync
     @TagField
     private float angle = 0;
+    @TagSync
     @TagField
     private String state;
+    @TagSync
     @TagField
     public int ticksExisted = 0;
     @TagField
@@ -79,6 +83,18 @@ public class TileBlock extends BlockEntityTickable {
             if (i == 0) continue;
             getWorld().setBlock(new Vec3i(pos.x, pos.y + i, pos.z), RWBlocks.COLLISION_BLOCK);
         }
+    }
+
+    @Override
+    public void writeUpdate(TagCompound nbt) throws SerializationException {
+        TagSerializer.serialize(nbt, this, TagSync.class);
+        super.writeUpdate(nbt);
+    }
+
+    @Override
+    public void readUpdate(TagCompound nbt) throws SerializationException {
+        TagSerializer.deserialize(nbt, this, getWorld(), TagSync.class);
+        super.readUpdate(nbt);
     }
 
     public BlockDefinition getDefinition() {

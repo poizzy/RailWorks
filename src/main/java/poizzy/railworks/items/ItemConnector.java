@@ -47,6 +47,10 @@ public class ItemConnector extends CustomItem {
 
     @Override
     public ClickResult onClickBlock(Player player, World world, Vec3i pos, Player.Hand hand, Facing facing, Vec3d inBlockPos) {
+        if (world.isClient) {
+            return ClickResult.PASS;
+        }
+
         TileBlock clicked = world.getBlockEntity(pos, TileBlock.class);
         if (clicked == null) {
             BlockType block = world.getBlock(pos).getBlock();
@@ -115,6 +119,7 @@ public class ItemConnector extends CustomItem {
         }
 
         controller.connectSignal(signal);
+        controller.markDirty();
 
         clearSelection(data);
 
