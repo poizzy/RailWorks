@@ -1,8 +1,11 @@
 package poizzy.railworks.gui.components;
 
 import cam72cam.mod.ModCore;
+import cam72cam.mod.event.ClientEvents;
+import cam72cam.mod.gui.helpers.GUIHelpers;
 import cam72cam.mod.gui.screen.IScreenBuilder;
 import cam72cam.mod.render.opengl.RenderState;
+import poizzy.railworks.library.MouseHelper;
 import poizzy.railworks.tile.TileSignal;
 
 import java.util.HashMap;
@@ -10,13 +13,18 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class ListSelector {
+public class ListSelector implements MouseHelper.MouseEvent {
     private final LinkedList<SelectorLine> list = new LinkedList<>();
     private final LinkedList<String> states;
     private final int x;
     private final int y;
     private int currentY;
+    private int firstVisibleRow = 0;
+
     private static final int LINE_HEIGHT = 26;
+    private static final int VISIBLE_ROWS = 5;
+    private static final int VIEWPORT_WIDTH = 164;
+    private static final int VIEWPORT_HEIGHT = VISIBLE_ROWS * LINE_HEIGHT;
 
     public ListSelector(TileSignal signal, int x, int y) {
         this.x = x;
@@ -24,6 +32,8 @@ public class ListSelector {
         this.currentY = y;
 
         this.states = signal.getDefinition().signalStates.keySet().stream().sorted().collect(Collectors.toCollection(LinkedList::new));
+
+        MouseHelper.addListener(this);
     }
 
     public final void addLine(int redstoneLevel, String state) {
@@ -45,13 +55,22 @@ public class ListSelector {
     }
 
     private void relayout() {
+        int maxOffset = Math.max(0, list.size() - VISIBLE_ROWS);
+        if (firstVisibleRow > maxOffset) firstVisibleRow = maxOffset;
+        if (firstVisibleRow < 0) firstVisibleRow = 0;
+
         for (int i = 0; i < list.size(); i++) {
             SelectorLine line = list.get(i);
-            int lineY = y + (i * LINE_HEIGHT);
-            line.setIndex(i);
-            line.setPosition(x, lineY);
-            line.setVisible(true);
+            int rel = i - firstVisibleRow;
 
+            if (rel >= 0 && rel < VISIBLE_ROWS) {
+                int lineY = y + (rel * LINE_HEIGHT);
+                line.setIndex(i);
+                line.setPosition(x, lineY);
+                line.setVisible(true);
+            } else {
+                line.setVisible(false);
+            }
             line.addButton.setType(i == list.size() - 1 ? CustomButton.Type.PLUS : CustomButton.Type.MINUS);
         }
     }
@@ -102,6 +121,7 @@ public class ListSelector {
     }
 
     public void dispose() {
+        MouseHelper.removeListener(this);
         for (SelectorLine line : list) {
             line.dispose();
         }
@@ -114,6 +134,25 @@ public class ListSelector {
             line.state.draw(builder, state);
             line.addButton.draw(builder, state);
         }
+
+        drawScrollbar(builder);
+    }
+
+    public void drawScrollbar(IScreenBuilder builder) {
+        int total = Math.max(1, list.size());
+        if (total <= VISIBLE_ROWS) return;
+
+        int trackX = x - 5;
+        int trackY = y;
+        int trackH = VIEWPORT_HEIGHT;
+
+        GUIHelpers.drawRect(trackX, trackY, 3, trackH, 0x80000000);
+
+        int handleH = Math.max(8, (int)(trackH * (VISIBLE_ROWS / (float) total)));
+        int maxOffset = total - VISIBLE_ROWS;
+        int handleY = trackY + (int) ((firstVisibleRow / (float) maxOffset) * (trackH - handleH));
+
+        GUIHelpers.drawRect(trackX, handleY, 3, handleH, 0xFFFFFFFF);
     }
 
     public Map<Integer, String> getRedstoneLevels() {
@@ -124,6 +163,25 @@ public class ListSelector {
             map.put(redstone, state);
         }
         return map;
+    }
+
+    @Override
+    public void onMouseEvent(ClientEvents.MouseGuiEvent event) {
+        if (event.action == ClientEvents.MouseAction.SCROLL) {
+            if (isOverViewport(event.x, event.y)) {
+                scrollBy((int) -event.scroll);
+            }
+        }
+    }
+
+    private boolean isOverViewport(int mx, int my) {
+        return mx >= x && my >= y && mx < x + VIEWPORT_WIDTH && my < y + VIEWPORT_HEIGHT;
+    }
+
+    private void scrollBy(int rows) {
+        int maxOffset = Math.max(0, list.size() - VISIBLE_ROWS);
+        firstVisibleRow = Math.max(0, Math.min(firstVisibleRow + rows, maxOffset));
+        relayout();
     }
 
     public static class SelectorLine {
